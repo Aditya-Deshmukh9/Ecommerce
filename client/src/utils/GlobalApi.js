@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosClient = axios.create({
-  baseURL: 'https://ecom-dqrw.onrender.com/api/v1/',
+  baseURL: process.env.BASEURL,
 });
 // console.log(process.env.BASEURL);
 
@@ -13,20 +13,16 @@ const registerUser = async ({ name, username, email, password }) => {
     password,
   });
   console.log(response);
-  return response;
+  return response.data;
 };
 
 const loginUser = async ({ email, password }) => {
-  console.log('true');
-  const response = await axiosClient.post(
-    'auth/login',
-    JSON.stringify({
-      email,
-      password,
-    })
-  );
-  console.log(response);
-  return response;
+  const response = await axiosClient.post('auth/login', {
+    email,
+    password,
+  });
+  // console.log(response);
+  return response.data;
 };
 
 export default {
