@@ -5,7 +5,6 @@ import GlobalApi from '../../utils/GlobalApi';
 
 const Login = () => {
   const [isError, setError] = useState(null);
-  const [verify, setVerify] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -32,13 +31,11 @@ const Login = () => {
         password: formData.password,
       });
 
-      console.log(res);
-
       if (res.success === true) {
         console.log('Login successful!');
         setLoading(false);
         console.log(res.data);
-        // navigate('/');
+        navigate('/');
         setFormData({
           email: '',
           password: '',
