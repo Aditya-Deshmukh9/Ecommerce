@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { accessToken, getCartProducts } from '../../features/cartSlice';
 
 const Bag = () => {
-  const data = useSelector((state) => state.cart)
+  // const data = useSelector((state) => state.cart)
   const dispatch = useDispatch();
 
-  console.log(data);
+  // console.log(data);
   
   useEffect(() => {
     

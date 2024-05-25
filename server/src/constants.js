@@ -16,9 +16,9 @@ export const PORT = 5000;
 
 // cookie options
 export const cookieOptions = {
-  // secure: true,
+  secure: true,
   httpOnly: true,
-  // sameSite: 'none',
+  sameSite: 'none',
   path: '/',
   maxAge: 864000000, // 10 days
 };

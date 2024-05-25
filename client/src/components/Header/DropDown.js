@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { getUserInfo, logout } from '../../features/authSlice';
+import {  logout } from '../../features/authSlice';
 import { toast } from 'react-toastify';
 
 function DropDown({ handleLeave }) {
   const { isUserLogin, userInfo } = useSelector(state => state.auth)
   const dispatch = useDispatch()
-
-  // const handleLogout = () => {
-  //   dispatch(logout());
-  //   toast.success('User logged out')
-  // }
+console.log(isUserLogin, userInfo);
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success('User logged out')
+  }
 
   return (
     <div
@@ -52,7 +52,7 @@ function DropDown({ handleLeave }) {
         </Link>
         {
           isUserLogin ? <button className='font-normal text-start hover:text-orange-400'
-          //  onClick={handleLogout}
+           onClick={handleLogout}
           >Logout</button> : ""
         }
       </div>
