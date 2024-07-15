@@ -10,7 +10,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   let { size } = await req.body;
   const uploadedFile = await req.file;
   const user = await req.user;
-  size = size.split(',');
+  const sizeArray = size.split(',').map((s) => s.trim());
 
   if (
     !name ||
@@ -44,7 +44,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   const productData = {
     name,
     description,
-    size,
+    size: sizeArray,
     price,
     stock,
     category,
@@ -81,7 +81,10 @@ export const getProduct = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const products = await Product.find({}).skip(skip).limit(limit);
+  const products = await Product.find({})
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
 
   return res
     .status(200)
@@ -276,6 +279,29 @@ export const uploadOtherImages = asyncHandler(async (req, res) => {
     );
 });
 
+export const deleteOtherImage = asyncHandler(async (req, res) => {
+  const { productId, imageId } = req.params;
+  const user = await req.user;
+
+  if (user.role != availableUserRoles.ADMIN) {
+    throw new ApiError(500, "you don't have access");
+  }
+
+  const productData = await Product.findById(productId);
+  let otherImages = productData.otherImages;
+  otherImages = otherImages.filter((item) => item._id != imageId);
+
+  await Product.findByIdAndUpdate(productId, {
+    $set: {
+      otherImages: otherImages,
+    },
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Images deleted successfully'));
+});
+
 export const filterProducts = asyncHandler(async (req, res) => {
   const { categoryId, colorId, size, sortBy } = req.query;
   // the multiple sizes have to come in comma separated format like `S,M,L,XL...`
@@ -316,5 +342,7 @@ export const filterProducts = asyncHandler(async (req, res) => {
     throw new ApiError(400, `No items found with the respective filter params`);
   }
 
-  return res.status(200).json(new ApiResponse(200, products, ''));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { productInfo: products }, ''));
 });

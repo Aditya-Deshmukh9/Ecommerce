@@ -18,6 +18,10 @@ export const getOrder = asyncHandler(async (req, res) => {
   const user = await req.user;
   const { userId, orderId } = await req.params;
 
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
   if (!userId && !orderId && user.role != availableUserRoles.ADMIN) {
     throw new ApiError(500, "you don't have access");
   }
@@ -44,7 +48,9 @@ export const getOrder = asyncHandler(async (req, res) => {
     });
   }
 
-  const data = await Order.aggregate(getOrderInfoPipeline);
+  orderPipeline.push({ $skip: skip }, { $limit: limit });
+
+  const data = await Order.aggregate(orderPipeline);
   if (!data) {
     throw new ApiError(500, `failed to retrieve order data - ${data}`);
   }
@@ -111,6 +117,7 @@ export const addOrder = asyncHandler(async (req, res) => {
       stripeId: paymentSession.id,
       user: user.id,
       orderId: newOrder._id,
+      url: paymentSession.url,
     };
 
     const newPayment = await Payment.create(paymentData);
@@ -130,26 +137,16 @@ export const addOrder = asyncHandler(async (req, res) => {
     }
   }
 
-  const orderPipeline = [...getOrderInfoPipeline];
-  orderPipeline.unshift({
-    $match: {
-      _id: new ObjectId(newOrder._id),
-    },
-  });
-  const orderInfo = await Order.aggregate(orderPipeline);
-  if (!orderInfo) {
-    throw new ApiError(500, 'something went worng');
-  }
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        { orderInfo: orderInfo[0], paymentInfo: { url: paymentSession.url } },
-        'order created successfully'
-      )
-    );
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        orderInfo: { _id: newOrder._id },
+        paymentInfo: { url: paymentSession.url },
+      },
+      'order created successfully'
+    )
+  );
 });
 
 export const updateOrder = asyncHandler(async (req, res) => {

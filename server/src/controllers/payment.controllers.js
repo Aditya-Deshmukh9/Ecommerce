@@ -6,6 +6,8 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { makeStripe } from '../utils/Stripe.js';
 import Stripe from 'stripe';
 import { getItemsPipeline } from '../utils/pipelines/orderItemInfo.js';
+import { getPaymentInfoPipeline } from '../utils/pipelines/PaymentInfo.js';
+import { ObjectId } from 'mongodb';
 import Order from '../models/order.model.js';
 import Product from '../models/product.model.js';
 
@@ -40,6 +42,9 @@ export const stripeWebhook = asyncHandler(async (req, res) => {
     case 'checkout.session.completed':
       await updatePayment(availablePaymentStatus.COMPLETED);
       break;
+    case 'checkout.session.expired':
+      await updatePayment(availablePaymentStatus.FAILED);
+      break;
     default:
       console.log(`something went worng ${event.type}`);
   }
@@ -55,7 +60,8 @@ export const getPayment = asyncHandler(async (req, res) => {
   }
 
   if (!userId && !paymentId && user.role == availableUserRoles.ADMIN) {
-    const paymentInfo = await Payment.find();
+    const paymentPipeline = [...getPaymentInfoPipeline];
+    const paymentInfo = await Payment.aggregate(paymentPipeline);
     if (!paymentInfo) {
       throw new ApiError(404, 'data not found');
     }
@@ -75,7 +81,14 @@ export const getPayment = asyncHandler(async (req, res) => {
     throw new ApiError(500, "you don't have access");
   }
 
-  const paymentInfo = await Payment.findOne({ _id: paymentId, user: userId });
+  const paymentPipeline = [...getPaymentInfoPipeline];
+  paymentPipeline.unshift({
+    $match: {
+      _id: new ObjectId(paymentId),
+      user: new ObjectId(userId),
+    },
+  });
+  const paymentInfo = await Payment.aggregate(paymentPipeline);
 
   if (!paymentInfo) {
     throw new ApiError(404, 'data not found');
@@ -142,6 +155,7 @@ export const addPayment = asyncHandler(async (req, res) => {
     stripeId: paymentSession.id,
     user: userId,
     orderId: oldPayment.orderId,
+    url: paymentSession.url,
   };
 
   const newPayment = await Payment.create(newPaymentData);
@@ -149,16 +163,15 @@ export const addPayment = asyncHandler(async (req, res) => {
     throw new ApiError(500, 'something went worng');
   }
 
-  return res.status(200).json(
-    new ApiResponse(
-      200,
-      {
-        paymentInfo: {
-          ...newPayment.toObject(),
-          url: paymentSession.url,
-        },
-      },
-      'new payment created'
-    )
-  );
+  await Order.findByIdAndUpdate(orderInfo._id, {
+    $set: {
+      paymentId: newPayment._id,
+    },
+  });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, { paymentInfo: newPayment }, 'new payment created')
+    );
 });
