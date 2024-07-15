@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import png from '../../../images/favicon.png';
 import { Link } from 'react-router-dom';
-import GlobalApi from '../../utils/GlobalApi.js';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { Register } from '../../features/authSlice.js';
+import { useDispatch, useSelector } from 'react-redux';
 
 const RegistrationPage = () => {
   const navigate = useNavigate();
-  const [isError, setIsError] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
     name: '',
@@ -14,7 +15,30 @@ const RegistrationPage = () => {
     password: '',
   });
 
+  const discpatch = useDispatch();
+  const { isLoading, error, isUserVerified, isUserLogin } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    if (isUserVerified === false) {
+      navigate('/login');
+      toast.success('User register successfully');
+      toast.info(
+        'Please Verify your account. A verification link already sent to your email address',
+        { position: 'top-center' }
+      );
+      setFormData({
+        name: '',
+        username: '',
+        email: '',
+        password: '',
+      });
+    }
+  }, [isUserVerified]);
+
   const handleChange = (e) => {
+    e.preventDefault();
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -22,28 +46,19 @@ const RegistrationPage = () => {
     }));
   };
 
-  const handleSubmit = async () => {
-    console.log(formData);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const res = await GlobalApi.registerUser({
-        name: formData.name,
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      });
-
-      console.log(res);
-      console.log('Registration successful!');
-      navigate('/');
-      setFormData({
-        username: '',
-        name: '',
-        email: '',
-        password: '',
-      });
+      discpatch(
+        Register({
+          name: formData.name,
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        })
+      );
     } catch (error) {
-      console.error('Registration failed:', error.message);
-      setIsError(error);
+      throw error;
     }
   };
 
@@ -56,9 +71,9 @@ const RegistrationPage = () => {
               <img src={png} alt="logo" />
             </Link>
           </div>
-          {isError && (
-            <p className="text-sm text-red-400">Please Fill Details Properly</p>
-          )}
+
+          <p className="text-lg text-red-400">{error && error}</p>
+
           <InputBox
             type="text"
             name="username"
@@ -93,7 +108,7 @@ const RegistrationPage = () => {
               onClick={handleSubmit} // Handle click event directly
               className="w-full rounded-md  bg-slate-600 px-5 py-3 font-medium text-white transition hover:bg-opacity-90"
             >
-              Register
+              {isLoading ? 'Loading...' : 'Register'}
             </button>
           </div>
           <div>

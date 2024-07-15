@@ -1,26 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-    font-family: "Jost", sans-serif;
+  font-family: 'Jost', sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
 }
 
 html,
 body {
-    overflow-x: hidden;
+  overflow-x: hidden;
 }
 
 .account-wrapper {
-    position: relative;
+  position: relative;
 }
 
 .dropdown-menu {
-    display: none;
+  display: none;
 }
 
 .account-wrapper:hover .dropdown-menu {
-    display: block;
+  display: block;
+}
+
+.custom-h-sidebar {
+  height: calc(100vh - 44px);
 }
