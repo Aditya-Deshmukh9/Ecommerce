@@ -7,7 +7,7 @@ export const availableUserRolesEnum = Object.values(availableUserRoles);
 
 // URI base path
 export const BASEPATH = '/api/v1';
-export const CLIENT_BASEPATH = 'http://localhost:1234';
+export const CLIENT_BASEPATH = process.env.CORS_ORIGIN;
 export const RESET_PASS_PAGE = '/resetPassword';
 export const EMAIL_VERIFY_PAGE = '/emailVerify';
 
