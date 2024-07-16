@@ -4,19 +4,24 @@ import { MdEdit, MdVerified } from 'react-icons/md';
 import { User } from '../../features/authSlice';
 import { updateAvatar, updateUser } from '../../features/userSlice';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const { userData } = useSelector((state) => state.auth);
+  const { userData, isUserLogin } = useSelector((state) => state.auth);
   const { updatedUser, isLoading } = useSelector((state) => state.user);
   const [profileData, setProfileData] = useState(null);
   const [updateData, setUpdateData] = useState(null);
   const [avatarData, setAvatarData] = useState(null);
   const [editableFields, setEditableFields] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!isUserLogin) {
+      navigate('/login');
+    }
     dispatch(User());
-  }, [dispatch]);
+  }, [dispatch, isUserLogin]);
 
   useEffect(() => {
     if (updatedUser) {
@@ -158,12 +163,12 @@ const Profile = () => {
 
   return (
     <div className="px-80 pt-10">
-      <div className="relative mb-5 cursor-pointer">
+      <div className="relative mb-5 flex cursor-pointer justify-center">
         {profileData?.avatar?.url ? (
           <div className="relative h-20 w-20 rounded-full">
             <img
               className="h-full w-full rounded-full"
-              src={profileData.avatar.url}
+              src={profileData?.avatar?.url}
               alt="Avatar"
             />
             <button
@@ -187,7 +192,7 @@ const Profile = () => {
           </div>
         ) : (
           <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gray-300 text-2xl font-bold">
-            {profileData?.username.charAt(0).toUpperCase()}
+            {profileData?.username?.charAt(0).toUpperCase()}
             <button
               className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-gray-600 text-white"
               onClick={handleButtonClick}
