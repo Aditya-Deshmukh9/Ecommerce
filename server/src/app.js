@@ -27,7 +27,6 @@ import useragent from 'express-useragent';
 // constants
 const app = express();
 dotenv.config();
-
 // stripe checkout webhook
 app.use(`${BASEPATH}/payment`, stripeWebhookRoutes);
 
