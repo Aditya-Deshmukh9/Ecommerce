@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import logo from '../../../images/favicon.png';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { IoIosSearch } from 'react-icons/io';
 import { VscAccount } from 'react-icons/vsc';
 import { FaRegHeart } from 'react-icons/fa';
@@ -81,6 +81,7 @@ function Header() {
     { text: 'Register', link: '/register' },
   ];
 
+  const location = useLocation();
   return (
     <>
       {/* <Sidemenu /> */}
@@ -107,7 +108,11 @@ function Header() {
                   key={index}
                   className="h-10 w-full border-b text-start hover:bg-gray-300 hover:text-primary"
                 >
-                  <Link to={item.link} className="capitalize">
+                  <Link
+                    onClick={() => setSidemenu(!Sidemenu)}
+                    to={item.link}
+                    className="capitalize"
+                  >
                     {item.text}
                   </Link>
                 </div>
@@ -120,7 +125,10 @@ function Header() {
         </Link>
         <div className="hidden justify-evenly gap-x-8 font-semibold lg:flex">
           {navtext.map((item, index) => (
-            <div key={index} className="hover:text-primary">
+            <div
+              key={index}
+              className={`${location.pathname === item.link ? 'text-primary' : ''} hover:text-primary`}
+            >
               <Link to={item.link} className="capitalize">
                 {item.text}
               </Link>
