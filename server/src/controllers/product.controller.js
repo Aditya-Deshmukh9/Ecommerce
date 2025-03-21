@@ -4,6 +4,7 @@ import { ApiError } from '../utils/ApiError.js';
 import Product from '../models/product.model.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { availableUserRoles } from '../constants.js';
+import { redisClient } from '../app.js';
 
 export const createProduct = asyncHandler(async (req, res) => {
   const { name, description, price, stock, category, color } = req.body;
@@ -80,11 +81,35 @@ export const getProduct = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
+  let products;
+  let redis_expiry = 1800;
 
-  const products = await Product.find({})
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
+  if (redisClient?.isReady) {
+    products = await redisClient.get('allproducts');
+  }
+
+  if (products) {
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { productInfo: JSON.parse(products) },
+          'Products retrieved successfully'
+        )
+      );
+  } else {
+    products = await Product.find({})
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    if (redisClient?.isReady) {
+      await redisClient.set('allproducts', JSON.stringify(products), {
+        EX: redis_expiry,
+      });
+    }
+  }
 
   return res
     .status(200)

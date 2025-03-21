@@ -1,8 +1,9 @@
 // package imports
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import redis from 'redis';
 
 // module imports
 import { BASEPATH } from './constants.js';
@@ -26,9 +27,24 @@ import useragent from 'express-useragent';
 
 // constants
 const app = express();
-dotenv.config();
+
+export const redisClient = redis.createClient({
+  password: process.env.REDIS_PASSWORD,
+  socket: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+  },
+});
+
+redisClient
+  .connect()
+  .then(() => console.log('connected to redis'))
+  .catch((err) => console.log(err));
+
 // stripe checkout webhook
 app.use(`${BASEPATH}/payment`, stripeWebhookRoutes);
+
+console.log(process.env.CORS_ORIGIN);
 
 // middlewares
 app.use(

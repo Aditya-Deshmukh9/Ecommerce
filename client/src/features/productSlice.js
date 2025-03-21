@@ -144,7 +144,7 @@ export const filterProducts = createAsyncThunk(
         params: filterData,
         withCredentials: true,
       });
-      console.log(response.data.data.productInfo);
+
       return response.data;
     } catch (error) {
       console.log(error);

@@ -61,8 +61,8 @@ export const getAllCategory = createAsyncThunk(
     try {
       const response = await axios.get(`${BASE_URL}/category`, {
         headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
       });
+
       return response.data;
     } catch (error) {
       const message = error.response?.data?.message || error.message;

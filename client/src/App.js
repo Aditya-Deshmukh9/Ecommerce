@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
+import { ReactLenis } from '@studio-freight/react-lenis';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -64,7 +65,9 @@ const appRouter = createBrowserRouter([
         <ScrollToTop />
         <Notification />
         <Suspense fallback={<Shimmer />}>
-          <AppLayout />
+          <ReactLenis root>
+            <AppLayout />
+          </ReactLenis>
         </Suspense>
       </>
     ),
@@ -97,7 +100,9 @@ const appRouter = createBrowserRouter([
       <PrivateRoute>
         <Suspense fallback={<Spinner />}>
           <Notification />
-          <DashboardLayout />
+          <ReactLenis root>
+            <DashboardLayout />
+          </ReactLenis>
         </Suspense>
       </PrivateRoute>
     ),

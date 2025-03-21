@@ -61,7 +61,6 @@ const Body = () => {
     }
     dispatch(getAllCategory());
     dispatch(getAllProducts({ page: 1 }));
-
   }, [dispatch]);
 
   useEffect(() => {
@@ -99,7 +98,6 @@ const Body = () => {
             {category?.slice(0, 4).map((category, index) => (
               <CategoryCard key={index} sdata={category} />
             ))}
-
           </div>
 
           <Button

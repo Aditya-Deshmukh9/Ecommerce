@@ -45,14 +45,14 @@ function ProductPage() {
       size: size ? size.split(',') : '',
       sortBy: sortBy || '',
     };
+    console.log(filterData);
+
     if (size || categoryId || size || sortBy) {
       setIsCallFilterData(true);
       dispatch(filterProducts({ filterData }));
     } else {
       dispatch(getAllProducts({ page }));
     }
-
-    console.log(filterData);
   }, [dispatch, page, selectedSort, searchParams]);
 
   useEffect(() => {

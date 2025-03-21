@@ -1,12 +1,8 @@
 // imports
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import { connectDB } from './src/db/connect.js';
 import { app } from './src/app.js';
 import { PORT } from './src/constants.js';
-
-// dotenv configuration
-dotenv.config();
-
 
 // database connection promise
 connectDB()

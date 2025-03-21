@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { clearCart } from '../../features/cartSlice';
+
 function OrderSuccessPage() {
   const [count, setCount] = useState(5);
   const dispatch = useDispatch();
@@ -9,19 +10,20 @@ function OrderSuccessPage() {
 
   useEffect(() => {
     dispatch(clearCart());
-  }, [dispatch]);
 
-  useEffect(() => {
     const timer = setInterval(() => {
       setCount((prevCount) => prevCount - 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [dispatch]);
 
-  if (count === 0) {
-    navigate('/myorders');
-  }
+  useEffect(() => {
+    if (count === 0) {
+      navigate('/myorders');
+    }
+  }, [count, navigate]);
+
   return (
     <div className="h-full bg-gray-100">
       <div className="bg-white p-6  md:mx-auto">
